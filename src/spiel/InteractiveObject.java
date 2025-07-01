@@ -1,3 +1,5 @@
+package spiel;
+
 public abstract class InteractiveObject {
     private String id;               // z. B. "truhe_1"
     private String name;             // z. B. "Alte Truhe"

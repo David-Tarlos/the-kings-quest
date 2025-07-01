@@ -1,0 +1,16 @@
+{
+
+
+  "_comment1": "Rooms",
+
+  "Room1": "You open the entrance door quietly. A big mirror shines on the wall. A small light swings from the ceiling. The air feels a little cold, like a secret is hiding here. On the floor, near the door, there is a sharp knife.\n\n",
+  "Room2": "This is a small storage room. Near the left wall, a small table holds one burning candle. In the middle, a big wooden chest is closed but makes soft sounds. The stone walls are cold and old. It feels like someone was here recently.",
+  "Room3": "You walk into a long, dark hallway. There is almost no light. It feels like the hallway goes on forever. At the very end, you see a big wooden wardrobe standing straight ahead. To the right of the wardrobe, there is a closed door. The air feels heavy and quiet.",
+
+
+
+
+  "soldat_entdeckt": "A soldier walks in. You hold your breath...",
+  "gewonnen": "You found the princess. You both escape the castle!",
+  "verloren": "You were caught. The castle is now your prison."
+}

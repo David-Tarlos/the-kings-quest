@@ -1,3 +1,5 @@
+package spiel;
+
 public class Objects {
     private String id;
     private String name;
