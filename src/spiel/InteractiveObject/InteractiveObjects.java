@@ -1,6 +1,6 @@
-package spiel;
+package spiel.InteractiveObject;
 
-public abstract class InteractiveObject {
+public abstract class InteractiveObjects {
     private String id;               // z. B. "truhe_1"
     private String name;             // z. B. "Alte Truhe"
     private String beschreibung;     // Beschreibung für den Spieler
@@ -8,7 +8,7 @@ public abstract class InteractiveObject {
     private boolean istGeoeffnet;
     // Ob bereits geöffnet
 
-    public InteractiveObject(String id, String name, String beschreibung, int lautstaerke, boolean istGeoeffnet) {
+    public InteractiveObjects(String id, String name, String beschreibung, int lautstaerke, boolean istGeoeffnet) {
         this.id = id;
         this.name = name;
         this.beschreibung = beschreibung;

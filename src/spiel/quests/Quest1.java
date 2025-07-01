@@ -1,6 +1,8 @@
 package spiel.quests;
 
-import java.util.Scanner;
+import spiel.InteractiveObject.*;
+
+import java.util.*;
 
 public class Quest1 {
 
@@ -28,32 +30,29 @@ public class Quest1 {
     private static final int ROOM10 = 10;
     private static final int ROOM11 = 11;
 
-
-    int x;
-    int y;
+    private final Map<Integer, List<InteractiveObjects>> objectsInRooms = new HashMap<>();
+    private int x, y;
 
     public Quest1(int[][] gameField) {
         this.gameField = gameField;
     }
 
     public void startQuest() {
-
-
         int[][] initial = {
-                {NO_ROOM, ROOM4, NO_ROOM, ROOM5, ROOM6, ROOM7},
-                {NO_ROOM, NO_ROOM, ROOM3, ROOM4, NO_ROOM, ROOM8},
-                {NO_ROOM, ROOM2, ROOM1, NO_ROOM, ROOM10, ROOM9},
+                {NO_ROOM, ROOM4,   NO_ROOM, ROOM5,  ROOM6, ROOM7},
+                {NO_ROOM, NO_ROOM, ROOM3,   ROOM4,  NO_ROOM, ROOM8},
+                {NO_ROOM, ROOM2,   ROOM1,   NO_ROOM, ROOM10, ROOM9},
                 {NO_ROOM, NO_ROOM, ENTRANCE, NO_ROOM, ROOM11, NO_ROOM}
         };
 
         for (int i = 0; i < gameField.length; i++) {
-            for (int j = 0; j < gameField[i].length; j++) {
-                gameField[i][j] = initial[i][j];
-            }
+            System.arraycopy(initial[i], 0, gameField[i], 0, gameField[i].length);
         }
 
         x = 2;
         y = 3;
+
+        setupInteractiveObjects();
 
         Scanner scanner = new Scanner(System.in);
         boolean playing = true;
@@ -80,13 +79,10 @@ public class Quest1 {
                 System.out.println("Description: Es ist sehr spuklich. Es ist ein langer Gang vor dir und siehst das andere Ende nicht. Links gerade neben der Eingangstür ist aber eine Tür, die so schreint als wäre es offen");
                 break;
             case ROOM2:
-                System.out.println("Description: Dies ist ein kleiner, gemütlicher Raum mit einem Kamin.");
+                System.out.println("Description: Dies ist ein kleiner Raum, mit einem Bett, Tisch und einem Schrank.");
                 break;
             case ROOM3:
                 System.out.println("Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken.");
-                break;
-            case ROOM4:
-                System.out.println("Description: Ein heller Raum mit großen Fenstern.");
                 break;
             case ROOM5:
                 System.out.println("Description: Ein Raum voller alter Gemälde.");
@@ -121,25 +117,21 @@ public class Quest1 {
         canGoWest = false;
         canGoEast = false;
 
-
+        //Norden
         if (y > 0) {
             int above = gameField[y - 1][x];
 
             if (above == ROOM3) {
                 System.out.println("Direction (Norden): Es gibt einen sehr langen Gang, der so aussieht als würde der ins nichts führen");
-            }
-
-            else if (above == ENTRANCE) {
+            } else if (above == ENTRANCE) {
                 System.out.println("Direction (Norden): Die Ausgangstür befindet sich Richtung Norden");
-            }
-
-            else if (above >= ROOM1 && above <= ROOM11) {
+            } else if (above >= ROOM1 && above <= ROOM11) {
                 System.out.println("Direction (Norden): Es gibt eine Tür Richtung Norden.");
                 canGoNorth = true;
             }
         }
 
-        // Süden prüfen
+        //Süden
         if (y < gameField.length - 1) {
             int below = gameField[y + 1][x];
 
@@ -149,7 +141,7 @@ public class Quest1 {
             }
         }
 
-        // Westen prüfen
+        // Westen
         if (x > 0) {
             int left = gameField[y][x - 1];
 
@@ -159,7 +151,7 @@ public class Quest1 {
             }
         }
 
-        // Osten prüfen
+        // Osten
         if (x < gameField[y].length - 1) {
             int right = gameField[y][x + 1];
 
@@ -170,61 +162,114 @@ public class Quest1 {
         }
     }
 
+
     public boolean decision(Scanner scanner) {
+        int currentRoom = gameField[y][x];
+        List<InteractiveObjects> objectsHere = objectsInRooms.get(currentRoom);
+
+        if (objectsHere != null && !objectsHere.isEmpty()) {
+            System.out.println("Was möchtest du untersuchen?");
+            for (int i = 0; i < objectsHere.size(); i++) {
+                System.out.println((i + 1) + ". " + objectsHere.get(i).getName());
+            }
+            System.out.println("0. Nichts untersuchen");
+
+            int choice = scanner.nextInt();
+            if (choice > 0 && choice <= objectsHere.size()) {
+                interactWithObject(objectsHere.get(choice - 1), scanner);
+                return true;
+            } else if (choice != 0) {
+                System.out.println("Ungültige Eingabe!");
+                return true;
+            }
+        }
+
         System.out.println("Was machst du?");
+        List<String> options = new ArrayList<>();
 
-        int optionNumber = 1;
-        java.util.Map<Integer, String> options = new java.util.HashMap<>();
+        if (canGoNorth) options.add("NORDEN");
+        if (canGoSouth) options.add("SÜDEN");
+        if (canGoWest) options.add("WESTEN");
+        if (canGoEast) options.add("OSTEN");
 
-        if (canGoNorth) {
-            System.out.println(optionNumber + ". Nach Norden gehen");
-            options.put(optionNumber, "NORDEN");
-            optionNumber++;
+        if (options.isEmpty()) {
+            System.out.println("Keine verfügbaren Richtungen!");
+            return true;
         }
-        if (canGoSouth) {
-            System.out.println(optionNumber + ". Nach Süden gehen");
-            options.put(optionNumber, "SÜDEN");
-            optionNumber++;
+
+        for (int i = 0; i < options.size(); i++) {
+            System.out.println((i + 1) + ". Nach " + options.get(i) + " gehen");
         }
-        if (canGoWest) {
-            System.out.println(optionNumber + ". Nach Westen gehen");
-            options.put(optionNumber, "WESTEN");
-            optionNumber++;
-        }
-        if (canGoEast) {
-            System.out.println(optionNumber + ". Nach Osten gehen");
-            options.put(optionNumber, "OSTEN");
-            optionNumber++;
-        }
-        System.out.println(optionNumber + ". Spiel beenden");
-        options.put(optionNumber, "BEENDEN");
 
         int input = scanner.nextInt();
-
-        if (!options.containsKey(input)) {
+        if (input < 1 || input > options.size()) {
             System.out.println("Ungültige Eingabe!");
             return true;
         }
 
-        String richtung = options.get(input);
-
-        switch (richtung) {
-            case "NORDEN":
-                y = y - 1;
-                break;
-            case "SÜDEN":
-                y = y + 1;
-                break;
-            case "WESTEN":
-                x = x - 1;
-                break;
-            case "OSTEN":
-                x = x + 1;
-                break;
-            case "BEENDEN":
-                return false;
+        switch (options.get(input - 1)) {
+            case "NORDEN" -> y--;
+            case "SÜDEN" -> y++;
+            case "WESTEN" -> x--;
+            case "OSTEN" -> x++;
         }
 
         return true;
     }
+
+    public void interactWithObject(InteractiveObjects obj, Scanner scanner) {
+        System.out.println("Du untersuchst: " + obj.getName());
+        obj.setIstGeoeffnet(true);
+        System.out.println(obj.getBeschreibung());
+        int lautstaerke =obj.getLautstaerke();
+        if (lautstaerke != 0) {
+            System.out.println("Nein!! es war zu laut, ich muss aufpassen, nicht dass ich bemerkt werde und von Soldaten angegriffen werden");
+        }
+        System.out.println("Einen Gegenstand in der Kiste gefunden");
+
+
+    }
+    
+
+    public void setupCharacterObject(){
+
+    }
+
+    public void setupInteractiveObjects() {
+        objectsInRooms.put(ROOM1, List.of(
+                new Chest("c1", "Alte Truhe", "Eine alte Holztruhe mit Eisenbeschlägen.", 3, false)
+        ));
+        objectsInRooms.put(ROOM2, List.of(
+                new Wardrobe("w1", "Kleiderschrank", "Ein grosser Kleiderschrank aus Eiche.", 2, false),
+                new Box("b1", "Holzkiste", "Eine kleine Holzkiste.", 1, false)
+        ));
+        objectsInRooms.put(ROOM3, List.of(
+                new Backpack("bp1", "Rucksack", "Ein abgenutzter Lederrucksack.", 1, false)
+        ));
+        objectsInRooms.put(ROOM4, List.of(
+                new Chest("c2", "Goldtruhe", "Eine mit Gold verzierte Truhe.", 4, false)
+        ));
+        objectsInRooms.put(ROOM5, List.of(
+                new Wardrobe("w2", "Schmuckschrank", "Ein Schrank voller Schmuckkästchen.", 3, false)
+        ));
+        objectsInRooms.put(ROOM6, List.of(
+                new Box("b2", "Fass", "Ein altes Weinfass.", 2, false)
+        ));
+        objectsInRooms.put(ROOM7, List.of(
+                new Chest("c3", "Büchertruhe", "Eine Truhe voller alter Bücher.", 3, false)
+        ));
+        objectsInRooms.put(ROOM8, List.of(
+                new Backpack("bp2", "Reiserucksack", "Ein großer Reiserucksack.", 2, false)
+        ));
+        objectsInRooms.put(ROOM9, List.of(
+                new Box("b3", "Schatzkiste", "Eine kleine Schatzkiste mit wertvollem Inhalt.", 3, false)
+        ));
+        objectsInRooms.put(ROOM10, List.of(
+                new Wardrobe("w3", "Magischer Schrank", "Ein Schrank, der geheimnisvoll leuchtet.", 4, false)
+        ));
+        objectsInRooms.put(ROOM11, List.of(
+                new Chest("c4", "Throntruhe", "Eine große Truhe neben dem Thron.", 5, false)
+        ));
+    }
 }
+
