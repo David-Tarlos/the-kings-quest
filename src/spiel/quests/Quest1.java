@@ -1,7 +1,10 @@
 package spiel.quests;
 
+import spiel.Character;
 import spiel.InteractiveObject.*;
+import spiel.inventory.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Quest1 {
@@ -18,6 +21,19 @@ public class Quest1 {
     private static final int ENTRANCE = 0;
     private static final int NO_ROOM = -1;
 
+    private boolean wasAlreadyInRoom1;
+    private boolean wasAlreadyInRoom2;
+    private boolean wasAlreadyInRoom3;
+    private boolean wasAlreadyInRoom4;
+    private boolean wasAlreadyInRoom5;
+    private boolean wasAlreadyInRoom6;
+    private boolean wasAlreadyInRoom7;
+    private boolean wasAlreadyInRoom8;
+    private boolean wasAlreadyInRoom9;
+    private boolean wasAlreadyInRoom10;
+    private boolean wasAlreadyInRoom11;
+
+
     private static final int ROOM1 = 1;
     private static final int ROOM2 = 2;
     private static final int ROOM3 = 3;
@@ -31,7 +47,12 @@ public class Quest1 {
     private static final int ROOM11 = 11;
 
     private final Map<Integer, List<InteractiveObjects>> objectsInRooms = new HashMap<>();
+    private final ArrayList<Weapon> weapons = new ArrayList<>();
+    private final ArrayList<Ruestung> ruestung = new ArrayList<>();
+    private final ArrayList<Key> key = new ArrayList<>();
     private int x, y;
+    private boolean justInteracted = false;
+    public ArrayList<String> inventory = new ArrayList<>();
 
     public Quest1(int[][] gameField) {
         this.gameField = gameField;
@@ -52,37 +73,109 @@ public class Quest1 {
         x = 2;
         y = 3;
 
-        setupInteractiveObjects();
+        Character character = new Character(0, 10);
+
+        initializeInteractiveObjects();
+        initializeItems();
 
         Scanner scanner = new Scanner(System.in);
         boolean playing = true;
 
         while (playing) {
-            description();
+            enemyDecision(character);
+            if (!justInteracted) {
+                description();
+            }
+            justInteracted = false;
             directions();
-            playing = decision(scanner);
+            playing = decision(scanner, character);
+
+
             System.out.println();
         }
 
-        System.out.println("Das Spiel ist beendet. Danke fürs Spielen!");
+        nextQuest();
+        System.out.println("Wieso gibt du auf mein Freund");
         scanner.close();
     }
 
+
+    public void nextQuest(){
+        //TODO
+    }
+
+    public void enemyDecision(Character character) {
+        int noise = character.getNoiseLevel();
+        if (noise >= 5) {
+            enemyInteraction();
+        }
+    }
+
+    public void enemyInteraction() {
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+        System.out.println("Me: Ich höre jemanden... Die Schritte kommen näher. Wahrscheinlich ein Soldat!");
+        System.out.println("Was machst du?");
+        System.out.println("1. Verstecken");
+        System.out.println("2. Ruhig bleiben und nichts tun");
+
+        int choice = 0;
+        while (choice != 1 && choice != 2) {
+            try {
+                choice = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Ungültige Eingabe. Bitte 1 oder 2 eingeben.");
+                scanner.next();
+            }
+        }
+
+        int chance = random.nextInt(100);
+
+        if (choice == 1) {
+
+            if (chance < 70) {
+                System.out.println("Du hast dich erfolgreich versteckt. Der Soldat hat dich nicht bemerkt.");
+            } else {
+                System.out.println("Du wurdest entdeckt! Der Soldat greift dich an.");
+                // TODO: Kampf starten
+            }
+        } else {
+
+            if (chance < 40) {
+                System.out.println("Du bleibst ruhig – und der Soldat geht an dir vorbei, ohne dich zu sehen.");
+            } else {
+                System.out.println("Der Soldat bemerkt dich sofort! Er greift an.");
+                // TODO: Kampf starten
+            }
+        }
+    }
+
+
     public void description() {
         int currentRoom = gameField[y][x];
+
+
+        if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length && wasAlreadyInRoom[currentRoom]) {
+            return;
+        }
+
+        // Markieren dass der Spieler jetzt in diesem Raum war
+        if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length) {
+            wasAlreadyInRoom[currentRoom] = true;
+        }
 
         switch (currentRoom) {
             case ENTRANCE:
                 System.out.println("Description: Du stehst am Eingang des Schlosses. Es ist still und dunkel. Die Landschaft sagt mir dass alles in Ordnung ist, aber wenn ich dieses Schloss ansehe voller Spinnweben, es ist schon so, als wäre hier kein Mensch. Ich höre ein Plötzliches weinen. Es war eine Stimme eines Fraues. Es müsste die Prinzessin sein, dann bin ich doch nicht falsch");
                 break;
             case ROOM1:
-                System.out.println("Description: Es ist sehr spuklich. Es ist ein langer Gang vor dir und siehst das andere Ende nicht. Links gerade neben der Eingangstür ist aber eine Tür, die so schreint als wäre es offen");
+                System.out.println("Description: Es ist sehr spuklich. Es ist ein langer Gang vor dir und siehst das andere Ende nicht. Rechts hinter der Tür eine versteckte alte Truhe.  Links gerade neben der Eingangstür ist aber eine Tür, die so schreint als wäre es offen. ");
                 break;
             case ROOM2:
                 System.out.println("Description: Dies ist ein kleiner Raum, mit einem Bett, Tisch und einem Schrank.");
                 break;
             case ROOM3:
-                System.out.println("Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken.");
+                System.out.println("Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken. Rechts ist ein mittelgrosser Raum. ");
                 break;
             case ROOM5:
                 System.out.println("Description: Ein Raum voller alter Gemälde.");
@@ -123,8 +216,10 @@ public class Quest1 {
 
             if (above == ROOM3) {
                 System.out.println("Direction (Norden): Es gibt einen sehr langen Gang, der so aussieht als würde der ins nichts führen");
+                canGoNorth = true;
             } else if (above == ENTRANCE) {
                 System.out.println("Direction (Norden): Die Ausgangstür befindet sich Richtung Norden");
+                canGoNorth = true;
             } else if (above >= ROOM1 && above <= ROOM11) {
                 System.out.println("Direction (Norden): Es gibt eine Tür Richtung Norden.");
                 canGoNorth = true;
@@ -163,84 +258,147 @@ public class Quest1 {
     }
 
 
-    public boolean decision(Scanner scanner) {
+    public boolean decision(Scanner scanner, Character character) {
         int currentRoom = gameField[y][x];
         List<InteractiveObjects> objectsHere = objectsInRooms.get(currentRoom);
 
+        List<String> actions = new ArrayList<>();
+        List<InteractiveObjects> availableObjects = new ArrayList<>();
+        
         if (objectsHere != null && !objectsHere.isEmpty()) {
-            System.out.println("Was möchtest du untersuchen?");
-            for (int i = 0; i < objectsHere.size(); i++) {
-                System.out.println((i + 1) + ". " + objectsHere.get(i).getName());
-            }
-            System.out.println("0. Nichts untersuchen");
-
-            int choice = scanner.nextInt();
-            if (choice > 0 && choice <= objectsHere.size()) {
-                interactWithObject(objectsHere.get(choice - 1), scanner);
-                return true;
-            } else if (choice != 0) {
-                System.out.println("Ungültige Eingabe!");
-                return true;
+            for (InteractiveObjects obj : objectsHere) {
+                if (!obj.isIstGeoeffnet()) {
+                    actions.add("Untersuche " + obj.getName());
+                    availableObjects.add(obj);
+                }
             }
         }
 
-        System.out.println("Was machst du?");
-        List<String> options = new ArrayList<>();
+        // Richtungen hinzufügen
+        if (canGoNorth) actions.add("Gehe nach Norden");
+        if (canGoSouth) actions.add("Gehe nach Süden");
+        if (canGoWest)  actions.add("Gehe nach Westen");
+        if (canGoEast)  actions.add("Gehe nach Osten");
 
-        if (canGoNorth) options.add("NORDEN");
-        if (canGoSouth) options.add("SÜDEN");
-        if (canGoWest) options.add("WESTEN");
-        if (canGoEast) options.add("OSTEN");
-
-        if (options.isEmpty()) {
-            System.out.println("Keine verfügbaren Richtungen!");
+        if (actions.isEmpty()) {
+            System.out.println("Keine verfügbaren Aktionen!");
             return true;
         }
 
-        for (int i = 0; i < options.size(); i++) {
-            System.out.println((i + 1) + ". Nach " + options.get(i) + " gehen");
+        System.out.println("Was möchtest du tun?");
+        for (int i = 0; i < actions.size(); i++) {
+            System.out.print((i + 1) + ". " + actions.get(i) + "   ");
         }
+        System.out.println();
 
         int input = scanner.nextInt();
-        if (input < 1 || input > options.size()) {
+        if (input < 1 || input > actions.size()) {
             System.out.println("Ungültige Eingabe!");
             return true;
         }
 
-        switch (options.get(input - 1)) {
-            case "NORDEN" -> y--;
-            case "SÜDEN" -> y++;
-            case "WESTEN" -> x--;
-            case "OSTEN" -> x++;
-        }
+        String selectedAction = actions.get(input - 1);
 
+        if (selectedAction.startsWith("Untersuche")) {
+            String objectName = selectedAction.substring("Untersuche ".length());
+            InteractiveObjects targetObject = null;
+
+            for (InteractiveObjects obj : availableObjects) {
+                if (obj.getName().equals(objectName)) {
+                    targetObject = obj;
+                    break;
+                }
+            }
+
+            if (targetObject != null) {
+                interactWithObject(targetObject, scanner, character);
+                justInteracted = true;
+            }
+        } else if (selectedAction.contains("Norden")) {
+            y--;
+        } else if (selectedAction.contains("Süden")) {
+            y++;
+        } else if (selectedAction.contains("Westen")) {
+            x--;
+        } else if (selectedAction.contains("Osten")) {
+            x++;
+        }
         return true;
     }
 
-    public void interactWithObject(InteractiveObjects obj, Scanner scanner) {
+    public void interactWithObject(InteractiveObjects obj, Scanner scanner, Character character) {
         System.out.println("Du untersuchst: " + obj.getName());
         obj.setIstGeoeffnet(true);
         System.out.println(obj.getBeschreibung());
-        int lautstaerke =obj.getLautstaerke();
-        if (lautstaerke != 0) {
-            System.out.println("Nein!! es war zu laut, ich muss aufpassen, nicht dass ich bemerkt werde und von Soldaten angegriffen werden");
+
+        int lautstaerke = obj.getLautstaerke();
+        if (lautstaerke == 0 || lautstaerke == 2 || lautstaerke == 4 || lautstaerke == 5 || lautstaerke == 6 || lautstaerke == 8) {
+            System.out.println("Nein!! es war zu laut, ich muss aufpassen, nicht dass ich bemerkt werde und von Soldaten angegriffen werde");
+            character.setNoiseLevel(character.getNoiseLevel() + 1);
         }
+
         System.out.println("Einen Gegenstand in der Kiste gefunden");
 
+        Random random = new Random();
+        int chance = random.nextInt(100);
 
+        Object item = null;
+
+
+        if (chance < 60 && !key.isEmpty()) {
+            int itemIndex = random.nextInt(key.size());
+            item = key.get(itemIndex);
+            key.remove(itemIndex);
+        } else if (chance < 80 && !weapons.isEmpty()) {
+            int itemIndex = random.nextInt(weapons.size());
+            item = weapons.get(itemIndex);
+            weapons.remove(itemIndex);
+        } else if (!ruestung.isEmpty()) {
+            int itemIndex = random.nextInt(ruestung.size());
+            item = ruestung.get(itemIndex);
+            ruestung.remove(itemIndex);
+        } else if (!weapons.isEmpty()) {
+            int itemIndex = random.nextInt(weapons.size());
+            item = weapons.get(itemIndex);
+            weapons.remove(itemIndex);
+        }
+
+        if (item != null) {
+            System.out.println("Gefundener Gegenstand: " + item.toString());
+            inventory.add(item.toString());  // toString() für korrekte Darstellung
+            System.out.println("Zum Inventar hinzugefügt!");
+
+            // Debug-Information
+            System.out.println("Aktuelles Inventar: " + inventory);
+            System.out.println("Geräuschpegel: " + character.getNoiseLevel());
+        } else {
+            System.out.println("Die Kiste ist leer!");
+        }
     }
-    
 
-    public void setupCharacterObject(){
+    public void initializeItems(){
+        weapons.add(new Weapon("Schwert", "Ein scharfes Schwert", 2, false));
+        weapons.add(new Weapon("Dolch", "Ein schneller, kleiner Dolch", 2, false));
+        weapons.add(new Weapon("Streitkolben", "Ein schwerer Streitkolben",3, false));
+        weapons.add(new Weapon("Axt", "Eine grobe Kampf-Axt",  5, false));
+        weapons.add(new Weapon("Speer", "Ein langer Speer für den Nahkampf", 4, false));
+        weapons.add(new Weapon("Hammer", "Ein schwerer Kriegshammer",4, false));
 
+        ruestung.add(new Ruestung("Lederrüstung", "Eine leichte Lederrüstung für Anfänger", 2, false));
+        ruestung.add(new Ruestung("Kettenhemd", "Ein robustes Kettenhemd aus Stahl", 1, false));
+        ruestung.add(new Ruestung("Plattenrüstung", "Eine schwere Plattenrüstung für Ritter", 3, false));
+        ruestung.add(new Ruestung("Schuppenrüstung", "Eine flexible Schuppenrüstung", 2, false));
+        ruestung.add(new Ruestung("Magierrobe", "Eine verzauberte Robe mit Schutz", 2, false));
+
+        key.add(new Key("Key", "Glänzender Schlüssel", false));
     }
 
-    public void setupInteractiveObjects() {
+    public void initializeInteractiveObjects() {
         objectsInRooms.put(ROOM1, List.of(
                 new Chest("c1", "Alte Truhe", "Eine alte Holztruhe mit Eisenbeschlägen.", 3, false)
         ));
         objectsInRooms.put(ROOM2, List.of(
-                new Wardrobe("w1", "Kleiderschrank", "Ein grosser Kleiderschrank aus Eiche.", 2, false),
+                new Wardrobe("w1", "Kleiderschrank", "Ein grosser Kleiderschrank aus Eiche.", 0, false),
                 new Box("b1", "Holzkiste", "Eine kleine Holzkiste.", 1, false)
         ));
         objectsInRooms.put(ROOM3, List.of(
@@ -250,26 +408,25 @@ public class Quest1 {
                 new Chest("c2", "Goldtruhe", "Eine mit Gold verzierte Truhe.", 4, false)
         ));
         objectsInRooms.put(ROOM5, List.of(
-                new Wardrobe("w2", "Schmuckschrank", "Ein Schrank voller Schmuckkästchen.", 3, false)
+                new Wardrobe("w2", "Schmuckschrank", "Ein Schrank voller Schmuckkästchen.", 0, false)
         ));
         objectsInRooms.put(ROOM6, List.of(
-                new Box("b2", "Fass", "Ein altes Weinfass.", 2, false)
+                new Box("b2", "Fass", "Ein altes Weinfass.", 0, false)
         ));
         objectsInRooms.put(ROOM7, List.of(
-                new Chest("c3", "Büchertruhe", "Eine Truhe voller alter Bücher.", 3, false)
+                new Chest("c3", "Büchertruhe", "Eine Truhe voller alter Bücher.", 0, false)
         ));
         objectsInRooms.put(ROOM8, List.of(
-                new Backpack("bp2", "Reiserucksack", "Ein großer Reiserucksack.", 2, false)
+                new Backpack("bp2", "Reiserucksack", "Ein großer Reiserucksack.", 0, false)
         ));
         objectsInRooms.put(ROOM9, List.of(
                 new Box("b3", "Schatzkiste", "Eine kleine Schatzkiste mit wertvollem Inhalt.", 3, false)
         ));
         objectsInRooms.put(ROOM10, List.of(
-                new Wardrobe("w3", "Magischer Schrank", "Ein Schrank, der geheimnisvoll leuchtet.", 4, false)
+                new Wardrobe("w3", "Magischer Schrank", "Ein Schrank, der geheimnisvoll leuchtet.", 5, false)
         ));
         objectsInRooms.put(ROOM11, List.of(
                 new Chest("c4", "Throntruhe", "Eine große Truhe neben dem Thron.", 5, false)
         ));
     }
 }
-
