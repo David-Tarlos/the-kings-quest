@@ -4,6 +4,7 @@ import com.sun.source.tree.CaseTree;
 import spiel.Character;
 import spiel.Farben;
 import spiel.Gegner.Soldier;
+import spiel.Initalizer;
 import spiel.InteractiveObject.*;
 import spiel.inventory.*;
 
@@ -37,9 +38,9 @@ public class Quest1 {
     private static final int ROOM11 = 11;
 
     private final Map<Integer, List<InteractiveObjects>> objectsInRooms = new HashMap<>();
-    private final ArrayList<Weapon> weapons = new ArrayList<>();
-    private final ArrayList<Ruestung> ruestung = new ArrayList<>();
-    private final ArrayList<Key> key = new ArrayList<>();
+    private ArrayList<Weapon> weapons = new ArrayList<>(); // Removed final
+    private ArrayList<Ruestung> ruestung = new ArrayList<>(); // Removed final
+    private ArrayList<Key> key = new ArrayList<>(); // Removed final
     private int x, y;
     private boolean justInteracted = false;
     public ArrayList<String> inventory = new ArrayList<>();
@@ -64,9 +65,14 @@ public class Quest1 {
         x = 2;
         y = 3;
 
+        Initalizer initalizer = new Initalizer();
+        initalizer.initializeItems();
+
+        this.weapons = initalizer.getWeapons();
+        this.ruestung = initalizer.getRuestung();
+        this.key = initalizer.getKey();
 
         initializeInteractiveObjects();
-        initializeItems();
 
         Scanner scanner = new Scanner(System.in);
         boolean playing = true;
@@ -81,7 +87,6 @@ public class Quest1 {
             directions();
             playing = decision(scanner, character);
 
-
             System.out.println();
         }
 
@@ -89,7 +94,6 @@ public class Quest1 {
         System.out.println("Wieso gibt du auf mein Freund");
         scanner.close();
     }
-
 
     public void nextQuest(){
         //TODO
@@ -103,22 +107,13 @@ public class Quest1 {
             int chance = random.nextInt(100);
 
             if (noise >= 7 && chance < 70) {
-
                 System.out.println(Farben.ROT + "Du warst extrem laut! Ein Soldat hat dich fast sicher bemerkt!" + Farben.WEISS);
                 character.setNoiseLevel(Math.max(0, noise - 4));
                 enemyInteraction();
-
             } else if (noise >= 5 && chance < 50) {
-
                 System.out.println(Farben.ROT + "Dein Lärm zieht Aufmerksamkeit auf sich..." + Farben.WEISS);
-
-
-
             } else if (noise >= 3 && chance < 20) {
-
                 System.out.println(Farben.ROT + "Irgendetwas bewegt sich in der Nähe, vielleicht hast du jemanden aufgeschreckt." + Farben.WEISS);
-
-
             } else {
                 character.setNoiseLevel(Math.max(0, noise - 1));
             }
@@ -140,11 +135,11 @@ public class Quest1 {
                 choice = scanner.nextInt();
             } catch (InputMismatchException e) {
                 System.out.println("Ungültige Eingabe. Bitte 1 oder 2 eingeben.");
-                scanner.next(); // Eingabepuffer leeren
+                scanner.next();
             }
         }
 
-        int chance = random.nextInt(100); // 0–99
+        int chance = random.nextInt(100);
 
         if (choice == 1) {
             if (chance < 50) {
@@ -199,31 +194,41 @@ public class Quest1 {
                 }
 
                 if (choice == 1) {
-                    System.out.println("Wähle eine Waffe:");
-                    int counter = 0;
-                    for (Weapon weapon : weapons) {
-                        counter++;
-                        System.out.println(counter + ". " + weapon.getName());
-                    }
-
-                    int weaponChoice = 0;
-                    while (weaponChoice < 1 || weaponChoice > weapons.size()) {
-                        try {
-                            System.out.print("Waffenauswahl (Zahl): ");
-                            weaponChoice = scanner.nextInt();
-                        } catch (InputMismatchException e) {
-                            System.out.println("Ungültige Eingabe.");
-                            scanner.next();
+                    // Fixed: Check if weapons list is empty
+                    if (weapons.isEmpty()) {
+                        System.out.println("Du hast keine Waffen! Du kämpfst mit bloßen Händen.");
+                        // Default attack with bare hands
+                        int schaden = 1;
+                        int verbleibendeLeben = Math.max(0, soldier.getHealth() - schaden);
+                        soldier.setHealth(verbleibendeLeben);
+                        System.out.println("Der Soldat hat jetzt " + soldier.getHealth() + " HP.");
+                    } else {
+                        System.out.println("Wähle eine Waffe:");
+                        int counter = 0;
+                        for (Weapon weapon : weapons) {
+                            counter++;
+                            System.out.println(counter + ". " + weapon.getName());
                         }
+
+                        int weaponChoice = 0;
+                        while (weaponChoice < 1 || weaponChoice > weapons.size()) {
+                            try {
+                                System.out.print("Waffenauswahl (Zahl): ");
+                                weaponChoice = scanner.nextInt();
+                            } catch (InputMismatchException e) {
+                                System.out.println("Ungültige Eingabe.");
+                                scanner.next();
+                            }
+                        }
+
+                        Weapon selectedWeapon = weapons.get(weaponChoice - 1);
+                        System.out.println("Du greifst mit " + selectedWeapon.getName() + " an!");
+
+                        int schaden = selectedWeapon.getSchaden();
+                        int verbleibendeLeben = Math.max(0, soldier.getHealth() - schaden);
+                        soldier.setHealth(verbleibendeLeben);
+                        System.out.println("Der Soldat hat jetzt " + soldier.getHealth() + " HP.");
                     }
-
-                    Weapon selectedWeapon = weapons.get(weaponChoice - 1);
-                    System.out.println("Du greifst mit " + selectedWeapon.getName() + " an!");
-
-                    int schaden = selectedWeapon.getSchaden();
-                    int verbleibendeLeben = Math.max(0, soldier.getHealth() - schaden);
-                    soldier.setHealth(verbleibendeLeben);
-                    System.out.println("Der Soldat hat jetzt " + soldier.getHealth() + " HP.");
 
                     if (soldier.getHealth() <= 0) {
                         System.out.println("Der Soldat wurde besiegt!");
@@ -248,11 +253,8 @@ public class Quest1 {
         }
     }
 
-
-
     public void description() {
         int currentRoom = gameField[y][x];
-
 
         if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length && wasAlreadyInRoom[currentRoom]) {
             return;
@@ -261,7 +263,7 @@ public class Quest1 {
         if (currentRoom == ENTRANCE || currentRoom == ROOM11 && isPrincesSaved){
             nextQuest();
         }
-        // Markieren dass der Spieler jetzt in diesem Raum war
+
         if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length) {
             wasAlreadyInRoom[currentRoom] = true;
         }
@@ -277,7 +279,7 @@ public class Quest1 {
                 System.out.println(Farben.ROT+"Description: Dies ist ein kleiner Raum, mit einem Bett, Tisch und einem Schrank."+Farben.WEISS);
                 break;
             case ROOM3:
-                System.out.println(Farben.ROT+"Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken. Rechts ist ein mittelgrosser Raum. ");
+                System.out.println(Farben.ROT+"Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken. Rechts ist ein mittelgrosser Raum. "+Farben.WEISS);
                 break;
             case ROOM5:
                 System.out.println(Farben.ROT+"Description: Ein Raum voller alter Gemälde."+Farben.WEISS);
@@ -289,7 +291,7 @@ public class Quest1 {
                 System.out.println(Farben.ROT+"Description: Ein Raum, der nach alten Büchern riecht. Dort ist die Prinzessin. "+Farben.WEISS);
                 break;
             case ROOM8:
-                System.out.println("Description: Ein verborgener Raum hinter einer Geheimtür."+Farben.WEISS);
+                System.out.println(Farben.ROT+"Description: Ein verborgener Raum hinter einer Geheimtür."+Farben.WEISS);
                 break;
             case ROOM9:
                 System.out.println(Farben.ROT+"Description: Der Raum ist mit Staub bedeckt und wirkt verlassen."+Farben.WEISS);
@@ -302,7 +304,6 @@ public class Quest1 {
                 break;
             default:
                 System.out.println(Farben.ROT+"Du befindest dich an einem unbekannten Ort."+Farben.WEISS);
-
                 break;
         }
     }
@@ -359,7 +360,6 @@ public class Quest1 {
             }
         }
     }
-
 
     public boolean decision(Scanner scanner, Character character) {
         int currentRoom = gameField[y][x];
@@ -442,13 +442,18 @@ public class Quest1 {
             character.setNoiseLevel(character.getNoiseLevel() + 3);
         }
 
+        // Fixed: Check if any items are available before trying to give one
+        if (key.isEmpty() && weapons.isEmpty() && ruestung.isEmpty()) {
+            System.out.println("Die Kiste ist leer!");
+            return;
+        }
+
         System.out.println("Einen Gegenstand in der Kiste gefunden");
 
         Random random = new Random();
         int chance = random.nextInt(100);
 
         Object item = null;
-
 
         if (chance < 60 && !key.isEmpty()) {
             int itemIndex = random.nextInt(key.size());
@@ -470,32 +475,14 @@ public class Quest1 {
 
         if (item != null) {
             System.out.println("Gefundener Gegenstand: " + item.toString());
-            inventory.add(item.toString());  // toString() für korrekte Darstellung
+            inventory.add(item.toString());
             System.out.println("Zum Inventar hinzugefügt!");
 
-            // Debug-Information
             System.out.println("Aktuelles Inventar: " + inventory);
             System.out.println("Geräuschpegel: " + character.getNoiseLevel());
         } else {
             System.out.println("Die Kiste ist leer!");
         }
-    }
-
-    public void initializeItems(){
-        weapons.add(new Weapon("Schwert", "Ein scharfes Schwert", 2, false));
-        weapons.add(new Weapon("Dolch", "Ein schneller, kleiner Dolch", 2, false));
-        weapons.add(new Weapon("Streitkolben", "Ein schwerer Streitkolben",3, false));
-        weapons.add(new Weapon("Axt", "Eine grobe Kampf-Axt",  5, false));
-        weapons.add(new Weapon("Speer", "Ein langer Speer für den Nahkampf", 4, false));
-        weapons.add(new Weapon("Hammer", "Ein schwerer Kriegshammer",4, false));
-
-        ruestung.add(new Ruestung("Lederrüstung", "Eine leichte Lederrüstung für Anfänger", 2, false));
-        ruestung.add(new Ruestung("Kettenhemd", "Ein robustes Kettenhemd aus Stahl", 1, false));
-        ruestung.add(new Ruestung("Plattenrüstung", "Eine schwere Plattenrüstung für Ritter", 3, false));
-        ruestung.add(new Ruestung("Schuppenrüstung", "Eine flexible Schuppenrüstung", 2, false));
-        ruestung.add(new Ruestung("Magierrobe", "Eine verzauberte Robe mit Schutz", 2, false));
-
-        key.add(new Key("Key", "Glänzender Schlüssel", false));
     }
 
     public void initializeInteractiveObjects() {
