@@ -1,6 +1,9 @@
 package spiel.quests;
 
+import com.sun.source.tree.CaseTree;
 import spiel.Character;
+import spiel.Farben;
+import spiel.Gegner.Soldier;
 import spiel.InteractiveObject.*;
 import spiel.inventory.*;
 
@@ -21,19 +24,6 @@ public class Quest1 {
     private static final int ENTRANCE = 0;
     private static final int NO_ROOM = -1;
 
-    private boolean wasAlreadyInRoom1;
-    private boolean wasAlreadyInRoom2;
-    private boolean wasAlreadyInRoom3;
-    private boolean wasAlreadyInRoom4;
-    private boolean wasAlreadyInRoom5;
-    private boolean wasAlreadyInRoom6;
-    private boolean wasAlreadyInRoom7;
-    private boolean wasAlreadyInRoom8;
-    private boolean wasAlreadyInRoom9;
-    private boolean wasAlreadyInRoom10;
-    private boolean wasAlreadyInRoom11;
-
-
     private static final int ROOM1 = 1;
     private static final int ROOM2 = 2;
     private static final int ROOM3 = 3;
@@ -53,6 +43,7 @@ public class Quest1 {
     private int x, y;
     private boolean justInteracted = false;
     public ArrayList<String> inventory = new ArrayList<>();
+    Character character = new Character(0, 10);
 
     public Quest1(int[][] gameField) {
         this.gameField = gameField;
@@ -73,7 +64,6 @@ public class Quest1 {
         x = 2;
         y = 3;
 
-        Character character = new Character(0, 10);
 
         initializeInteractiveObjects();
         initializeItems();
@@ -86,6 +76,7 @@ public class Quest1 {
             if (!justInteracted) {
                 description();
             }
+
             justInteracted = false;
             directions();
             playing = decision(scanner, character);
@@ -106,49 +97,157 @@ public class Quest1 {
 
     public void enemyDecision(Character character) {
         int noise = character.getNoiseLevel();
-        if (noise >= 5) {
-            enemyInteraction();
+        Random random = new Random();
+
+        if (noise >= 3) {
+            int chance = random.nextInt(100);
+
+            if (noise >= 7 && chance < 70) {
+
+                System.out.println(Farben.ROT + "Du warst extrem laut! Ein Soldat hat dich fast sicher bemerkt!" + Farben.WEISS);
+                character.setNoiseLevel(Math.max(0, noise - 4));
+                enemyInteraction();
+
+            } else if (noise >= 5 && chance < 50) {
+
+                System.out.println(Farben.ROT + "Dein Lärm zieht Aufmerksamkeit auf sich..." + Farben.WEISS);
+
+
+
+            } else if (noise >= 3 && chance < 20) {
+
+                System.out.println(Farben.ROT + "Irgendetwas bewegt sich in der Nähe, vielleicht hast du jemanden aufgeschreckt." + Farben.WEISS);
+
+
+            } else {
+                character.setNoiseLevel(Math.max(0, noise - 1));
+            }
         }
     }
 
     public void enemyInteraction() {
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
-        System.out.println("Me: Ich höre jemanden... Die Schritte kommen näher. Wahrscheinlich ein Soldat!");
+
         System.out.println("Was machst du?");
-        System.out.println("1. Verstecken");
-        System.out.println("2. Ruhig bleiben und nichts tun");
+        System.out.println(Farben.BLAU + "1. Verstecken");
+        System.out.println(Farben.BLAU + "2. Ruhig bleiben und nichts tun");
 
         int choice = 0;
         while (choice != 1 && choice != 2) {
             try {
+                System.out.print("Deine Wahl: ");
                 choice = scanner.nextInt();
             } catch (InputMismatchException e) {
                 System.out.println("Ungültige Eingabe. Bitte 1 oder 2 eingeben.");
-                scanner.next();
+                scanner.next(); // Eingabepuffer leeren
             }
         }
 
-        int chance = random.nextInt(100);
+        int chance = random.nextInt(100); // 0–99
 
         if (choice == 1) {
-
-            if (chance < 70) {
+            if (chance < 50) {
                 System.out.println("Du hast dich erfolgreich versteckt. Der Soldat hat dich nicht bemerkt.");
             } else {
-                System.out.println("Du wurdest entdeckt! Der Soldat greift dich an.");
-                // TODO: Kampf starten
+                System.out.println("Der Soldat hat dich entdeckt!");
+                enemyAttack();
             }
         } else {
-
-            if (chance < 40) {
+            if (chance < 50) {
                 System.out.println("Du bleibst ruhig – und der Soldat geht an dir vorbei, ohne dich zu sehen.");
             } else {
-                System.out.println("Der Soldat bemerkt dich sofort! Er greift an.");
-                // TODO: Kampf starten
+                System.out.println("Der Soldat bemerkt dich!");
+                enemyAttack();
             }
         }
     }
+
+    public void enemyAttack() {
+        Random random = new Random();
+        int chance = random.nextInt(5);
+        int health = random.nextInt(10) + 1;
+        int attackPower = random.nextInt(4) + 1;
+        int defense = random.nextInt(2) + 1;
+        boolean isAttacking = random.nextBoolean();
+
+        if (chance == 1) {
+            Soldier soldier = new Soldier("Soldat", health, attackPower, defense);
+            System.out.println(Farben.ROT + "Ein Soldat betritt den Raum und bemerkt dich!");
+
+            if (isAttacking) {
+                System.out.println("Er greift dich mit seinem Schwert an. Du weichst aus, wirst aber am Unterbauch getroffen.");
+                int schaden = Math.max(0, attackPower - defense);
+                character.setHealth(Math.max(0, character.getHealth() - schaden));
+                System.out.println("Du hast " + schaden + " Schaden erlitten.");
+                System.out.println("Deine verbleibenden HP: " + character.getHealth());
+            } else {
+                System.out.println("Was möchtest du tun?");
+                System.out.println("1. Angreifen");
+                System.out.println("2. Flüchten");
+
+                Scanner scanner = new Scanner(System.in);
+                int choice = 0;
+                while (choice != 1 && choice != 2) {
+                    try {
+                        System.out.print("Deine Wahl: ");
+                        choice = scanner.nextInt();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Ungültige Eingabe. Bitte 1 oder 2 eingeben.");
+                        scanner.next();
+                    }
+                }
+
+                if (choice == 1) {
+                    System.out.println("Wähle eine Waffe:");
+                    int counter = 0;
+                    for (Weapon weapon : weapons) {
+                        counter++;
+                        System.out.println(counter + ". " + weapon.getName());
+                    }
+
+                    int weaponChoice = 0;
+                    while (weaponChoice < 1 || weaponChoice > weapons.size()) {
+                        try {
+                            System.out.print("Waffenauswahl (Zahl): ");
+                            weaponChoice = scanner.nextInt();
+                        } catch (InputMismatchException e) {
+                            System.out.println("Ungültige Eingabe.");
+                            scanner.next();
+                        }
+                    }
+
+                    Weapon selectedWeapon = weapons.get(weaponChoice - 1);
+                    System.out.println("Du greifst mit " + selectedWeapon.getName() + " an!");
+
+                    int schaden = selectedWeapon.getSchaden();
+                    int verbleibendeLeben = Math.max(0, soldier.getHealth() - schaden);
+                    soldier.setHealth(verbleibendeLeben);
+                    System.out.println("Der Soldat hat jetzt " + soldier.getHealth() + " HP.");
+
+                    if (soldier.getHealth() <= 0) {
+                        System.out.println("Der Soldat wurde besiegt!");
+                    } else {
+                        System.out.println("Der Soldat lebt noch.");
+                    }
+
+                } else {
+                    System.out.println("Du versuchst zu fliehen...");
+                    int fluchtChance = random.nextInt(100);
+                    if (fluchtChance < 60) {
+                        System.out.println("Du konntest erfolgreich fliehen!");
+                    } else {
+                        System.out.println("Der Soldat hindert dich an der Flucht und trifft dich!");
+                        int schaden = Math.max(0, attackPower - defense);
+                        character.setHealth(Math.max(0, character.getHealth() - schaden));
+                        System.out.println("Du hast " + schaden + " Schaden erlitten.");
+                        System.out.println("Deine verbleibenden HP: " + character.getHealth());
+                    }
+                }
+            }
+        }
+    }
+
 
 
     public void description() {
@@ -159,6 +258,9 @@ public class Quest1 {
             return;
         }
 
+        if (currentRoom == ENTRANCE || currentRoom == ROOM11 && isPrincesSaved){
+            nextQuest();
+        }
         // Markieren dass der Spieler jetzt in diesem Raum war
         if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length) {
             wasAlreadyInRoom[currentRoom] = true;
@@ -166,40 +268,41 @@ public class Quest1 {
 
         switch (currentRoom) {
             case ENTRANCE:
-                System.out.println("Description: Du stehst am Eingang des Schlosses. Es ist still und dunkel. Die Landschaft sagt mir dass alles in Ordnung ist, aber wenn ich dieses Schloss ansehe voller Spinnweben, es ist schon so, als wäre hier kein Mensch. Ich höre ein Plötzliches weinen. Es war eine Stimme eines Fraues. Es müsste die Prinzessin sein, dann bin ich doch nicht falsch");
+                System.out.println(Farben.ROT+"Description: Du stehst am Eingang des Schlosses. Es ist still und dunkel. Die Landschaft sagt mir dass alles in Ordnung ist, aber wenn ich dieses Schloss ansehe voller Spinnweben, es ist schon so, als wäre hier kein Mensch. Ich höre ein Plötzliches weinen. Es war eine Stimme eines Fraues. Es müsste die Prinzessin sein, dann bin ich doch nicht falsch"+Farben.WEISS);
                 break;
             case ROOM1:
-                System.out.println("Description: Es ist sehr spuklich. Es ist ein langer Gang vor dir und siehst das andere Ende nicht. Rechts hinter der Tür eine versteckte alte Truhe.  Links gerade neben der Eingangstür ist aber eine Tür, die so schreint als wäre es offen. ");
+                System.out.println(Farben.ROT+"Description: Es ist sehr spuklich. Es ist ein langer Gang vor dir und siehst das andere Ende nicht. Rechts hinter der Tür eine versteckte alte Truhe.  Links gerade neben der Eingangstür ist aber eine Tür, die so schreint als wäre es offen. "+Farben.WEISS);
                 break;
             case ROOM2:
-                System.out.println("Description: Dies ist ein kleiner Raum, mit einem Bett, Tisch und einem Schrank.");
+                System.out.println(Farben.ROT+"Description: Dies ist ein kleiner Raum, mit einem Bett, Tisch und einem Schrank."+Farben.WEISS);
                 break;
             case ROOM3:
-                System.out.println("Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken. Rechts ist ein mittelgrosser Raum. ");
+                System.out.println(Farben.ROT+"Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken. Rechts ist ein mittelgrosser Raum. ");
                 break;
             case ROOM5:
-                System.out.println("Description: Ein Raum voller alter Gemälde.");
+                System.out.println(Farben.ROT+"Description: Ein Raum voller alter Gemälde."+Farben.WEISS);
                 break;
             case ROOM6:
-                System.out.println("Description: Hier hört man das leise Tropfen von Wasser.");
+                System.out.println(Farben.ROT+"Description: Hier hört man das leise Tropfen von Wasser."+Farben.WEISS);
                 break;
             case ROOM7:
-                System.out.println("Description: Ein Raum, der nach alten Büchern riecht.");
+                System.out.println(Farben.ROT+"Description: Ein Raum, der nach alten Büchern riecht. Dort ist die Prinzessin. "+Farben.WEISS);
                 break;
             case ROOM8:
-                System.out.println("Description: Ein verborgener Raum hinter einer Geheimtür.");
+                System.out.println("Description: Ein verborgener Raum hinter einer Geheimtür."+Farben.WEISS);
                 break;
             case ROOM9:
-                System.out.println("Description: Der Raum ist mit Staub bedeckt und wirkt verlassen.");
+                System.out.println(Farben.ROT+"Description: Der Raum ist mit Staub bedeckt und wirkt verlassen."+Farben.WEISS);
                 break;
             case ROOM10:
-                System.out.println("Description: Ein Raum voller mystischer Symbole an den Wänden.");
+                System.out.println(Farben.ROT+"Description: Ein Raum voller mystischer Symbole an den Wänden."+Farben.WEISS);
                 break;
             case ROOM11:
-                System.out.println("Description: Dies ist der Thronsaal, prachtvoll und imposant.");
+                System.out.println(Farben.ROT+"Description: Dies ist der Thronsaal, prachtvoll und imposant."+Farben.WEISS);
                 break;
             default:
-                System.out.println("Du befindest dich an einem unbekannten Ort.");
+                System.out.println(Farben.ROT+"Du befindest dich an einem unbekannten Ort."+Farben.WEISS);
+
                 break;
         }
     }
@@ -215,13 +318,13 @@ public class Quest1 {
             int above = gameField[y - 1][x];
 
             if (above == ROOM3) {
-                System.out.println("Direction (Norden): Es gibt einen sehr langen Gang, der so aussieht als würde der ins nichts führen");
+                System.out.println(Farben.GRUEN+"Direction (Norden): Es gibt einen sehr langen Gang, der so aussieht als würde der ins nichts führen"+ Farben.WEISS);
                 canGoNorth = true;
             } else if (above == ENTRANCE) {
-                System.out.println("Direction (Norden): Die Ausgangstür befindet sich Richtung Norden");
+                System.out.println(Farben.GRUEN+"Direction (Norden): Die Ausgangstür befindet sich Richtung Norden"+ Farben.WEISS);
                 canGoNorth = true;
             } else if (above >= ROOM1 && above <= ROOM11) {
-                System.out.println("Direction (Norden): Es gibt eine Tür Richtung Norden.");
+                System.out.println(Farben.GRUEN+"Direction (Norden): Es gibt eine Tür Richtung Norden."+ Farben.WEISS);
                 canGoNorth = true;
             }
         }
@@ -231,7 +334,7 @@ public class Quest1 {
             int below = gameField[y + 1][x];
 
             if (below >= ROOM1 && below <= ROOM11 || below == ENTRANCE) {
-                System.out.println("Direction (Süden): Es gibt eine Tür Richtung Süden.");
+                System.out.println(Farben.GRUEN+"Direction (Süden): Es gibt eine Tür Richtung Süden."+ Farben.WEISS);
                 canGoSouth = true;
             }
         }
@@ -241,7 +344,7 @@ public class Quest1 {
             int left = gameField[y][x - 1];
 
             if (left >= ROOM1 && left <= ROOM11 || left == ENTRANCE) {
-                System.out.println("Direction (Westen): Es gibt eine Tür Richtung Westen.");
+                System.out.println(Farben.GRUEN+"Direction (Westen): Es gibt eine Tür Richtung Westen."+ Farben.WEISS);
                 canGoWest = true;
             }
         }
@@ -251,7 +354,7 @@ public class Quest1 {
             int right = gameField[y][x + 1];
 
             if (right >= ROOM1 && right <= ROOM11 || right == ENTRANCE) {
-                System.out.println("Direction (Osten): Es gibt eine Tür Richtung Osten.");
+                System.out.println(Farben.GRUEN+"Direction (Osten): Es gibt eine Tür Richtung Osten."+Farben.WEISS);
                 canGoEast = true;
             }
         }
@@ -264,7 +367,7 @@ public class Quest1 {
 
         List<String> actions = new ArrayList<>();
         List<InteractiveObjects> availableObjects = new ArrayList<>();
-        
+
         if (objectsHere != null && !objectsHere.isEmpty()) {
             for (InteractiveObjects obj : objectsHere) {
                 if (!obj.isIstGeoeffnet()) {
@@ -275,10 +378,10 @@ public class Quest1 {
         }
 
         // Richtungen hinzufügen
-        if (canGoNorth) actions.add("Gehe nach Norden");
-        if (canGoSouth) actions.add("Gehe nach Süden");
-        if (canGoWest)  actions.add("Gehe nach Westen");
-        if (canGoEast)  actions.add("Gehe nach Osten");
+        if (canGoNorth) actions.add(Farben.BLAU + "Gehe nach Norden");
+        if (canGoSouth) actions.add(Farben.BLAU + "Gehe nach Süden");
+        if (canGoWest)  actions.add(Farben.BLAU + "Gehe nach Westen");
+        if (canGoEast)  actions.add(Farben.BLAU + "Gehe nach Osten");
 
         if (actions.isEmpty()) {
             System.out.println("Keine verfügbaren Aktionen!");
@@ -297,10 +400,12 @@ public class Quest1 {
             return true;
         }
 
+        System.out.print(Farben.BLAU+"");
         String selectedAction = actions.get(input - 1);
 
-        if (selectedAction.startsWith("Untersuche")) {
-            String objectName = selectedAction.substring("Untersuche ".length());
+        String cleanAction = selectedAction.replace(Farben.BLAU, "").replace(Farben.WEISS, "");
+        if (cleanAction.startsWith("Untersuche")) {
+            String objectName = cleanAction.substring("Untersuche ".length());
             InteractiveObjects targetObject = null;
 
             for (InteractiveObjects obj : availableObjects) {
@@ -332,9 +437,9 @@ public class Quest1 {
         System.out.println(obj.getBeschreibung());
 
         int lautstaerke = obj.getLautstaerke();
-        if (lautstaerke == 0 || lautstaerke == 2 || lautstaerke == 4 || lautstaerke == 5 || lautstaerke == 6 || lautstaerke == 8) {
+        if (lautstaerke == 0 || lautstaerke == 1 || lautstaerke == 3 || lautstaerke == 4 || lautstaerke == 6 || lautstaerke == 7 || lautstaerke == 10) {
             System.out.println("Nein!! es war zu laut, ich muss aufpassen, nicht dass ich bemerkt werde und von Soldaten angegriffen werde");
-            character.setNoiseLevel(character.getNoiseLevel() + 1);
+            character.setNoiseLevel(character.getNoiseLevel() + 3);
         }
 
         System.out.println("Einen Gegenstand in der Kiste gefunden");
