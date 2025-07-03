@@ -45,6 +45,7 @@ public class Quest1 {
     private boolean justInteracted = false;
     public ArrayList<String> inventory = new ArrayList<>();
     Character character = new Character(0, 10);
+    boolean playing = true;
 
     public Quest1(int[][] gameField) {
         this.gameField = gameField;
@@ -75,13 +76,14 @@ public class Quest1 {
         initializeInteractiveObjects();
 
         Scanner scanner = new Scanner(System.in);
-        boolean playing = true;
 
-        while (playing) {
+
+          while (playing) {
             enemyDecision(character);
             if (!justInteracted) {
                 description();
             }
+
 
             justInteracted = false;
             directions();
@@ -96,7 +98,8 @@ public class Quest1 {
     }
 
     public void nextQuest(){
-        //TODO
+        System.out.println("Du hast das Spiel durchgespielt");
+        return;
     }
 
     public void enemyDecision(Character character) {
@@ -107,7 +110,7 @@ public class Quest1 {
             int chance = random.nextInt(100);
 
             if (noise >= 7 && chance < 70) {
-                System.out.println(Farben.ROT + "Du warst extrem laut! Ein Soldat hat dich fast sicher bemerkt!" + Farben.WEISS);
+                System.out.println(Farben.ROT + "Du warst extrem laut! Ein Soldat hat dich sicher bemerkt!" + Farben.WEISS);
                 character.setNoiseLevel(Math.max(0, noise - 4));
                 enemyInteraction();
             } else if (noise >= 5 && chance < 50) {
@@ -142,16 +145,16 @@ public class Quest1 {
         int chance = random.nextInt(100);
 
         if (choice == 1) {
-            if (chance < 50) {
+            if (chance < 40) {
                 System.out.println("Du hast dich erfolgreich versteckt. Der Soldat hat dich nicht bemerkt.");
-            } else {
+            } else if (chance >= 40) {
                 System.out.println("Der Soldat hat dich entdeckt!");
                 enemyAttack();
             }
-        } else {
-            if (chance < 50) {
+        } else if (choice == 2) {
+            if (chance < 40) {
                 System.out.println("Du bleibst ruhig – und der Soldat geht an dir vorbei, ohne dich zu sehen.");
-            } else {
+            } else if (chance >= 40) {
                 System.out.println("Der Soldat bemerkt dich!");
                 enemyAttack();
             }
@@ -257,10 +260,12 @@ public class Quest1 {
         int currentRoom = gameField[y][x];
 
         if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length && wasAlreadyInRoom[currentRoom]) {
-            return;
+            playing = false;
+            nextQuest();
         }
 
-        if (currentRoom == ENTRANCE || currentRoom == ROOM11 && isPrincesSaved){
+        if ((currentRoom == ENTRANCE || currentRoom == ROOM11) && isPrincesSaved) {
+
             nextQuest();
         }
 
@@ -289,6 +294,9 @@ public class Quest1 {
                 break;
             case ROOM7:
                 System.out.println(Farben.ROT+"Description: Ein Raum, der nach alten Büchern riecht. Dort ist die Prinzessin. "+Farben.WEISS);
+                System.out.println(Farben.GELB+"Du nimmst sie mit"+Farben.WEISS);
+                System.out.println("Nun muss du dich zu einem Ausgang begeben");
+                isPrincesSaved = true;
                 break;
             case ROOM8:
                 System.out.println(Farben.ROT+"Description: Ein verborgener Raum hinter einer Geheimtür."+Farben.WEISS);
@@ -442,13 +450,11 @@ public class Quest1 {
             character.setNoiseLevel(character.getNoiseLevel() + 3);
         }
 
-        // Fixed: Check if any items are available before trying to give one
+
         if (key.isEmpty() && weapons.isEmpty() && ruestung.isEmpty()) {
             System.out.println("Die Kiste ist leer!");
             return;
         }
-
-        System.out.println("Einen Gegenstand in der Kiste gefunden");
 
         Random random = new Random();
         int chance = random.nextInt(100);

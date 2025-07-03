@@ -8,6 +8,5 @@ public class Starter {
         Game game = new Game();
         game.startGame();
 
-
         }
     }
