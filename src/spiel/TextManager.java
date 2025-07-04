@@ -39,12 +39,43 @@ public class TextManager {
 
     public static void getStory1() {
         String story = get("background_story1");
-        schreibeLangsam(Farben.GRUEN +story, 40);
+        schreibeLangsam(Farben.GRUEN +story, 55);
     }
     public static void getStory2() {
         String story = get("background_story2");
-        schreibeLangsam(Farben.GRUEN +story, 40);
+        schreibeLangsam(Farben.GRUEN +story, 55);
     }
+
+    public static void getStory3() {
+        String story = get("background_story3");
+        schreibeLangsam(Farben.ROT +story, 65);
+    }
+    public static void getStory4() {
+        String story = get("background_story4");
+        schreibeLangsam(Farben.GRUEN +story, 55);
+    }
+    public static void getStory5() {
+        String story = get("background_story5");
+        schreibeLangsam(Farben.ROT +story, 65);
+    }
+    public static void getStory6() {
+        String story = get("background_story6");
+        schreibeLangsam(Farben.GRUEN +story, 55);
+    }
+
+    public static void getStory7() {
+        String story = get("background_story7");
+        schreibeLangsam(Farben.ROT +story, 65);
+    }
+    public static void getStory8() {
+        String story = get("background_story8");
+        schreibeLangsam(Farben.GRUEN +story, 55);
+    }
+    public static void getStory9() {
+        String story = get("background_story9");
+        schreibeLangsam(Farben.ROT +story, 65);
+    }
+
 
     public static void get1Room(){
         String Room1 = get("Room1");

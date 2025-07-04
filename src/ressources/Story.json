@@ -3,10 +3,23 @@
   "Welcome_Text": "The King's Quest",
 
   "_comment2": "BackgroundStory",
-  "background_story1": "Me: It was a terrible night. Bandits attacked me—I ran into the dark forest. The trees were thick, and I kept running, branches hitting my face. They didn’t stop chasing me. I knew they weren’t after my money anymore—they wanted ME. I ran straight ahead until I saw a road with carriages. But the bandits were close. I felt weak and slow. I heard their footsteps. I shouted, 'Help!' Then I felt a hard hit on the back of my head... and everything went black.",
-  "background_story2": "King: Ich rub my eyes King isch da er seit ich han 3 Quests zum erledige und ich mach das",
-  "background_story3": "Me: Was mache ich da",
-  "background_story4": "King: Ich han 3 Quests für dich du kek",
+  "background_story1": "Me: That night was horrible. Bandits attacked me out of nowhere. I ran into the dark forest—branches hit my face, the trees were thick, and I could barely see. They kept chasing me. I realized... they didn’t want my money. They wanted me. I ran until I saw a road with carriages. I screamed, 'Help!' But before anyone could reach me, something hit the back of my head... then everything went black.",
+
+  "background_story2": "Me: Ugh... Where am I? This room... it's beautiful. Soft mattress under me... golden decorations on the walls... Am I dreaming? Wait—who's that man sitting there?",
+
+  "background_story3": "King: You're awake. Good. I’m the king of this land. I have a task for you—actually, three quests. And you must complete them.",
+
+  "background_story4": "Me: Wait, what? Why am I here? What do you want from me?",
+
+  "background_story5": "King: When you cried out for help and collapsed, my guards heard you. I was in one of the passing carriages. We brought you here to recover. You’re safe now... for the moment.",
+
+  "background_story6": "Me: I see... I'm grateful, but why did you help me?",
+
+  "background_story7": "King: Out of brotherly duty... and because I have a mission for you. Complete it, and you may stay here, serve under my protection, and never be homeless again.",
+
+  "background_story8": "Me: And if I say no?",
+
+  "background_story9": "King: You don’t have a choice.",
 
 
 

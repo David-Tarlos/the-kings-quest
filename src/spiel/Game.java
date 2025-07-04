@@ -19,44 +19,52 @@ public class Game {
     }
 
     public void startBackgroundStory() {
-        System.out.println(Farben.ROT + "Zum Starten des Spiels die Enter Taste drücken" + Farben.WEISS);
+        System.out.println(Farben.ROT + "Press Enter to begin the game" + Farben.WEISS);
 
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
 
-        //TextManager.getStory1();
-        //TextManager.getStory2();
-        //TextManager.getStory3();
+        TextManager.getStory1();
+        TextManager.getStory2();
+        TextManager.getStory3();
+        TextManager.getStory4();
+        TextManager.getStory5();
+        TextManager.getStory6();
+        TextManager.getStory7();
+        TextManager.getStory8();
+        TextManager.getStory9();
+
         int choice = -1;
 
         while (true) {
-            System.out.println("Akzeptierst du dieses Angebot?");
-            System.out.println(Farben.GRUEN + "1. Ja");
-            System.out.println(Farben.ROT + "2. Nein" + Farben.WEISS);
+            System.out.println("Do you accept this offer?");
+            System.out.println(Farben.GRUEN + "1. Yes");
+            System.out.println(Farben.ROT + "2. No" + Farben.WEISS);
 
             if (scanner.hasNextInt()) {
                 choice = scanner.nextInt();
                 switch (choice) {
                     case 1:
-                        System.out.println("Du hast angenommen.");
+                        System.out.println("You have accepted.");
                         int[][] map = new int[4][6];
                         Quest1 quest1 = new Quest1(map);
                         quest1.startQuest();
                         return;
                     case 2:
-                        System.out.println("Du hast abgelehnt.");
-                        //Todo
-                        //System.out.println("");
+                        System.out.println("You have refused.");
+                        System.out.println("You were beheaded.");
+                        System.out.println(Farben.ROT + "\n\n--- GAME OVER ---\nYou died a painful death...\n\n" + Farben.WEISS);
                         return;
                     default:
-                        System.out.println("Bitte wähle 1 oder 2.");
+                        System.out.println("Please choose 1 or 2.");
                 }
             } else {
                 scanner.next();
-                System.out.println("Bitte gib eine Zahl ein.");
+                System.out.println("Please enter a number.");
             }
         }
     }
+
 
 
 
@@ -123,7 +131,7 @@ public class Game {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("The Ultimate spiel.Game");
+        System.out.println("Game of the Year");
         System.out.print(Farben.BLAU + "Loading");
         try {
             for (int i = 0; i <= 3; i++) {

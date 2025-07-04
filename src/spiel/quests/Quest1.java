@@ -82,6 +82,9 @@ public class Quest1 {
             enemyDecision(character);
             if (!justInteracted) {
                 description();
+                if (!playing) {
+                    break;
+                }
             }
 
 
@@ -91,15 +94,12 @@ public class Quest1 {
 
             System.out.println();
         }
-
-        nextQuest();
-        System.out.println("Wieso gibt du auf mein Freund");
-        scanner.close();
     }
 
     public void nextQuest(){
         System.out.println("Du hast das Spiel durchgespielt");
-        return;
+        Quest2 quest2 = new Quest2();
+        quest2.endGame();
     }
 
     public void enemyDecision(Character character) {
@@ -259,14 +259,10 @@ public class Quest1 {
     public void description() {
         int currentRoom = gameField[y][x];
 
-        if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length && wasAlreadyInRoom[currentRoom]) {
+        if ((currentRoom == ENTRANCE || currentRoom == ROOM11) && isPrincesSaved) {
             playing = false;
             nextQuest();
-        }
-
-        if ((currentRoom == ENTRANCE || currentRoom == ROOM11) && isPrincesSaved) {
-
-            nextQuest();
+            return;
         }
 
         if (currentRoom >= 0 && currentRoom < wasAlreadyInRoom.length) {
@@ -275,45 +271,46 @@ public class Quest1 {
 
         switch (currentRoom) {
             case ENTRANCE:
-                System.out.println(Farben.ROT+"Description: Du stehst am Eingang des Schlosses. Es ist still und dunkel. Die Landschaft sagt mir dass alles in Ordnung ist, aber wenn ich dieses Schloss ansehe voller Spinnweben, es ist schon so, als wäre hier kein Mensch. Ich höre ein Plötzliches weinen. Es war eine Stimme eines Fraues. Es müsste die Prinzessin sein, dann bin ich doch nicht falsch"+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: You stand at the entrance of the castle. It's cold and quiet. The land looks peaceful, but the castle is covered in spiderwebs – like no one has been here for years. Suddenly, you hear soft crying... a woman's voice. Could it be the princess?" + Farben.WEISS);
                 break;
             case ROOM1:
-                System.out.println(Farben.ROT+"Description: Es ist sehr spuklich. Es ist ein langer Gang vor dir und siehst das andere Ende nicht. Rechts hinter der Tür eine versteckte alte Truhe.  Links gerade neben der Eingangstür ist aber eine Tür, die so schreint als wäre es offen. "+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: A long, dark hallway stretches out before you. You can barely see the end. On the right, behind an old door, there's a dusty chest. To the left, near the entrance, another door stands slightly open." + Farben.WEISS);
                 break;
             case ROOM2:
-                System.out.println(Farben.ROT+"Description: Dies ist ein kleiner Raum, mit einem Bett, Tisch und einem Schrank."+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: A small, tight room. There’s an old bed, a broken table, and a creaky wardrobe. The air smells damp and moldy." + Farben.WEISS);
                 break;
             case ROOM3:
-                System.out.println(Farben.ROT+"Description: Ein langer, düsterer Korridor. Hier scheint es zu spuken. Rechts ist ein mittelgrosser Raum. "+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: A shadowy corridor. It feels like something is watching you. To the right, a narrow passage leads into another room." + Farben.WEISS);
                 break;
             case ROOM5:
-                System.out.println(Farben.ROT+"Description: Ein Raum voller alter Gemälde."+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: The walls are lined with faded paintings. Their eyes seem to follow you. A cold breeze comes from a crack in the wall. In the corner stands a mysterious jewelry cabinet." + Farben.WEISS);
                 break;
             case ROOM6:
-                System.out.println(Farben.ROT+"Description: Hier hört man das leise Tropfen von Wasser."+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: You hear soft dripping – water falling from the ceiling. A small window lets in pale moonlight, casting silver shadows on the floor. In the middle stands an old barrel." + Farben.WEISS);
                 break;
             case ROOM7:
-                System.out.println(Farben.ROT+"Description: Ein Raum, der nach alten Büchern riecht. Dort ist die Prinzessin. "+Farben.WEISS);
-                System.out.println(Farben.GELB+"Du nimmst sie mit"+Farben.WEISS);
-                System.out.println("Nun muss du dich zu einem Ausgang begeben");
+                System.out.println(Farben.ROT + "Description: The room is filled with old books. It smells like dusty paper. Through the window, you see that dawn is coming. A heavy book chest stands nearby. In the corner, the princess sits – tired, but alive!" + Farben.WEISS);
+                System.out.println(Farben.GELB + "You take her with you." + Farben.WEISS);
+                System.out.println("Now you must find the way out.");
                 isPrincesSaved = true;
                 break;
             case ROOM8:
-                System.out.println(Farben.ROT+"Description: Ein verborgener Raum hinter einer Geheimtür."+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: Behind a secret door, you find a hidden room. It's barely lit – only a little light comes through a dusty window. A travel backpack lies against the wall. Old notes are scattered on the floor." + Farben.WEISS);
                 break;
             case ROOM9:
-                System.out.println(Farben.ROT+"Description: Der Raum ist mit Staub bedeckt und wirkt verlassen."+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: The room is thick with dust. A locked treasure chest sits in the middle. No one has been here in ages. It smells like the past." + Farben.WEISS);
                 break;
             case ROOM10:
-                System.out.println(Farben.ROT+"Description: Ein Raum voller mystischer Symbole an den Wänden."+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: Strange symbols cover the walls. Some glow softly, as if reacting to your presence." + Farben.WEISS);
                 break;
             case ROOM11:
-                System.out.println(Farben.ROT+"Description: Dies ist der Thronsaal, prachtvoll und imposant."+Farben.WEISS);
+                System.out.println(Farben.ROT + "Description: The throne room – large, old, but still grand. The ceiling is high, and a lonely throne stands at the far end. Something important must have happened here." + Farben.WEISS);
                 break;
             default:
-                System.out.println(Farben.ROT+"Du befindest dich an einem unbekannten Ort."+Farben.WEISS);
+                System.out.println(Farben.ROT + "You are in an unknown place." + Farben.WEISS);
                 break;
         }
+
     }
 
     public void directions() {
